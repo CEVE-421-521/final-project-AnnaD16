@@ -5,7 +5,7 @@ jupyter: julia-1.10
 date: 2024-04-30
 
 # YOU DO NOT NEED BOTH PDF AND DOCX.
-# COMMENT OR DELETE THE ONE YOU DON'T WANT TO USE.
+#
 #
 # Feel free to customize the look of your final document:
 # https://quarto.org/docs/reference/formats/pdf.html
