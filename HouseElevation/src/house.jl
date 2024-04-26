@@ -122,7 +122,7 @@ function ElevationCostCalculator()
 end
 
 # Define the method for calculating the elevation cost
-function (calculator::ElevationCostCalculator)(house::House, Δh_ft::T) where {T<:Real}
+function (calculator::ElevationCostCalculator)(house::House, Δh_ft::T, grant::E) where {T<:Real, E<:Real}
 
     # cannot lower the house
     Δh_ft < 0.0 && throw(DomainError(Δh, "Cannot lower the house"))
@@ -137,19 +137,20 @@ function (calculator::ElevationCostCalculator)(house::House, Δh_ft::T) where {T
     base_cost = (10000 + 300 + 470 + 4300 + 2175 + 3500) # in USD
     rate = calculator.itp(Δh_ft)
     cost = base_cost + house.area_ft2 * rate
-    return cost
+
+    return cost * (1 - grant)
 end
 
 # Define the method for calculating the elevation cost
 function (calculator::ElevationCostCalculator)(
-    house::House, Δh::T
-) where {T<:Unitful.Length}
+    house::House, Δh::T, grant::E
+) where {T<:Unitful.Length, E<:Real}
 
     # Convert Δh to feet
     Δh_ft = ustrip(u"ft", Δh)
 
     # Call the method for calculating the elevation cost
-    return calculator(house, Δh_ft)
+    return calculator(house, Δh_ft, grant)
 end
 
 elevation_cost = ElevationCostCalculator()

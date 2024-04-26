@@ -9,14 +9,16 @@ using StatsBase: mean
 end
 
 """A SOW contains all the variables that may vary from one simulation to the next"""
-struct SOW{T<:Real}
+struct SOW{T<:Real, E<:Real, S<:Real}
     slr::Oddo17SLR # the parameters of sea-level rise
     surge_dist::Distributions.UnivariateDistribution # the distribution of storm surge
     discount_rate::T # the discount rate, as a percentage (e.g., 2% is 0.02)
+    grant::E # The grant amount as a percentage of what the government will pay for the elevation.
+    damages_grant::S # The grant amount as a percentage of what the government will pay for the damages.
 end
 
 """
-In this model, we only hvae one decision variable: how high to elevate the house.
+In this model, we only have one decision variable: how high to elevate the house.
 """
 struct Action{T<:Real}
     Δh_ft::T

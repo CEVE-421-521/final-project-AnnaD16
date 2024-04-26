@@ -13,7 +13,7 @@ Expected Annual Damages are computed using the trapezoidal rule
 function run_sim(a::Action, sow::SOW, p::ModelParams)
 
     # first, we calculate the cost of elevating the house
-    construction_cost = elevation_cost(p.house, a.Δh_ft)
+    construction_cost = elevation_cost(p.house, a.Δh_ft, sow.grant)
 
     # we don't need to recalculate the steps of the trapezoidal integral for each year
     storm_surges_ft = range(
@@ -37,6 +37,6 @@ function run_sim(a::Action, sow::SOW, p::ModelParams)
 
     years_idx = p.years .- minimum(p.years)
     discount_fracs = (1 - sow.discount_rate) .^ years_idx
-    ead_npv = sum(eads .* discount_fracs)
+    ead_npv = sum(eads .* discount_fracs) * (1 - sow.damages_grant)
     return -(ead_npv + construction_cost)
 end

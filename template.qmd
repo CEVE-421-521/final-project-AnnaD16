@@ -5,7 +5,7 @@ jupyter: julia-1.10
 date: 2024-04-30
 
 # YOU DO NOT NEED BOTH PDF AND DOCX.
-#
+# COMMENT OR DELETE THE ONE YOU DON'T WANT TO USE.
 #
 # Feel free to customize the look of your final document:
 # https://quarto.org/docs/reference/formats/pdf.html
@@ -65,6 +65,7 @@ Compare this for different house scenarios
 For the post-flood damage grants, we could reduce the damage amount by 75% for the year with the most severe year of the 50 in terms of storms.
 Assume that if the house was flooded it's a major flood event 
 Split construction cost into construction cost for the homeowner vs. government 
+Potentially create a variable that is like 
 Compare npv for homeowner and government (who spends more)
 
 
