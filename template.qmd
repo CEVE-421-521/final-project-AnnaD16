@@ -41,6 +41,7 @@ execute:
 # Introduction
 
 ## Problem Statement
+
 Elevating a house is very costly and is the reason why this decision is put off into the future. With the help of grants, buildings are able to be elevated as needed in a proactive timeframe which prevents further damages.
 
 Federal grants have been a crucial form of assistance for households living in areas prone to flooding, but there is lacking research into how these grants impact the cost-benefit ratio and how these funds are allocated.
@@ -48,6 +49,7 @@ Federal grants have been a crucial form of assistance for households living in a
 After demonstrating the significance of an elevation construction grant to a homeowner or community, we found that these grants are more often allocated for wealthier homes/businesses. Many of these programs are required to go through larger communities before getting allotted to individuals which makes it even harder for marginalized communities/families to receive this form of funding.
 
 ## Selected Feature
+
 We added the FEMA FMA grant as a percentage to the SOW function in the source code. We decided to include this grant as 0%, 75%, and 90% because the grant is not attributed to everyone and the other values are the two amounts that are most commonly distributed. Providing multiple different grant values allows us to compare various SOWs and the effectiveness of the FEMA grant to prevent flood induced damages.
 
 In addition to the FEMA FMA grant we chose to incorporate the HMGP grant which comes into play once the flood damages have been made. This grant is also distributed at a rate of 75% however it will have different effects on the SOW because it is not proactive in nature unlike FEMA FMA.
@@ -55,6 +57,7 @@ In addition to the FEMA FMA grant we chose to incorporate the HMGP grant which c
 With these two additions to the model we are able to compare the NVPs for different SOWs which include different floods and different levels of grants.
 
 # Literature Review
+
 Flood Mitigation Assistance (FMA) is a grant program led by the Federal Emergency Management Agency (FEMA) in order to limit the damages that come with the increasing severity of floods in the US. The grants are not handed out to individual homeowners but rather they are allotted to authorities and communities on the local scale. These groups are then free to distribute their grants as they see fit. (https://www.epa.gov/sites/default/files/2015-10/documents/fma.pdf)
 
 This article touches on the accessibility of FEMA grants in the US and the help that they bring to communities and home owners around the country. In this article the authors bring up their concern for the future FEMA programs that are in the works of being implemented given the current implementation of the existing FEMA grant programs.
@@ -263,13 +266,12 @@ You may have multiple subsections of results, which you can create using `##`.
 
 The results obtained from our enhanced decision-support tool are presented below. The table provides a comprehensive overview of the outcomes, illustrating the relationship between elevation grants, damage grants, minimum NPV values, and elevation heights.
 
-```{julia}
+```{julia} 
 using DataFrames
-
 column1_data = ["[0,0,0,0,0] (0)", "[0,0,0,0,0] (0)", "[0,0,0,0,0] (0)", "[0,0,0,0,.75] (.15)","[0,0,0,.75,.75] (.3)","[0,0,.75,.75,.9] (.48)","[0,0,.75,.75,.9] (.48)","[0,0,.75,.75,.9] (.48)","[.75,.75,.75,.75,.9] (.78)","[.75,.75,.75,.75,.9] (.78)"]
 column2_data = ["[0,0,0,0,0] (0)", "[0,0,.75,.75,.9] (.48)", "[.75,.75,.75,.75,.9] (.78)", "[0,0,.75,.75,.9] (.48)","[0,0,.75,.75,.9] (.48)","[0,0,0,0,0] (0)","[0,0,0,.75,.75] (.3)","[0,0,.75,.75,.9] (.48)","[0,0,0,0,0] (0)","[.75,.75,.75,.75,.9] (.78)"]
 column3_data = [229184, 208427, 198616, 179428,135928,130303,119106,115628,61237.6,48050.8]
-column4_data = [8.80329,8.5,7.67433,8.5,8.5,10.9463,8.65081,8.5,13.8813,8.5] 
+column4_data = [8.80329,8.5,7.67433,8.5,8.5,10.9463,8.65081,8.5,13.8813,8.5]
 ```
 
 ```{julia}
@@ -277,7 +279,6 @@ df = DataFrame(Elevation_Grant_Array = column1_data,
                Damage_Grant_Array = column2_data,
                Minimum_NPV = column3_data,
                Elevation = column4_data)
-
 println(df)
 ```
 
