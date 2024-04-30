@@ -64,11 +64,11 @@ We load these into the `ModelParams`.
 #| output: false
 house = let
     haz_fl_dept = CSV.read("data/haz_fl_dept.csv", DataFrame) # read in the file
-    desc = "one story, Contents, fresh water, short duration"
-    row = @rsubset(haz_fl_dept, :Description == desc)[1, :] # select the row I want
+    desc = "one story, no basement, Contents"
+    row = @rsubset(haz_fl_dept, :Source == "USACE - Galveston", :Description == desc)[1, :] # select the row I want
     area = 500u"ft^2"
-    height_above_gauge = 12u"ft"
-    House(row; area=area, height_above_gauge=height_above_gauge, value_usd=250_000)
+    height_above_gauge = 10u"ft"
+    House(row; area=area, height_above_gauge=height_above_gauge, value_usd=500_000)
 end
 
 p = ModelParams(; house=house, years=2024:2083)
@@ -95,7 +95,7 @@ function draw_discount_rate()
 end
 
 function draw_damages_grant()
-    return min(rand(Normal(0.70, 0.15)), 1)
+    rand([.75,.75,.75,.75,.9])
 end
 
 function GrantDistribution()

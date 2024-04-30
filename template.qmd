@@ -76,6 +76,132 @@ Cite at least two relevant journal articles to support your approach (see [Quart
 Explain how these articles contribute to the justification of your selected feature.
 
 # Methodology
+```{julia}
+using CSV
+using DataFrames
+using DataFramesMeta
+using Distributions
+using LaTeXStrings
+using Metaheuristics
+using Plots
+using Random
+using Unitful
+
+Plots.default(; margin=5Plots.mm)
+```
+
+```{julia}
+using Revise
+using HouseElevation
+```
+
+```{julia}
+#| output: false
+house = let
+    haz_fl_dept = CSV.read("data/haz_fl_dept.csv", DataFrame) # read in the file
+    desc = "one story, no basement, Contents"
+    row = @rsubset(haz_fl_dept, :Source == "USACE - Galveston", :Description == desc)[1, :] # select the row I want
+    area = 500u"ft^2"
+    height_above_gauge = 10u"ft"
+    House(row; area=area, height_above_gauge=height_above_gauge, value_usd=500_000)
+end
+
+p = ModelParams(; house=house, years=2024:2083)
+```
+
+```{julia}
+#| output: false
+slr_scenarios = let
+    df = CSV.read("data/slr_oddo.csv", DataFrame)
+    [Oddo17SLR(a, b, c, tstar, cstar) for (a, b, c, tstar, cstar) in eachrow(df)]
+end
+
+function draw_surge_distribution()
+    μ = rand(Normal(5, 1))
+    σ = rand(Exponential(1.25))
+    ξ = rand(Normal(0.1, 0.05))
+    return GeneralizedExtremeValue(μ, σ, ξ)
+end
+
+function draw_discount_rate()
+    return rand(Normal(0.05, 0.03))
+end
+
+function draw_damages_grant()
+    rand([.75,.75,.75,.75,.9])
+end
+
+function GrantDistribution()
+    rand([.5,.75,.75,.75,.9])
+end
+
+function draw_sow()
+    slr = rand(slr_scenarios)
+    surge_params = draw_surge_distribution()
+    discount = draw_discount_rate()
+    grant = GrantDistribution()
+    damages_grant = draw_damages_grant()
+    return SOW(slr, surge_params, discount, grant, damages_grant)
+end
+
+```
+
+```{julia}
+#| output: false
+Random.seed!(421521)
+N_SOW = 10_000
+N_SOW_opt = 10 # to start
+sows = [draw_sow() for _ in 1:N_SOW]
+sows_opt = first(sows, N_SOW_opt)
+```
+
+```{julia}
+bounds = boxconstraints(; lb=[0.0], ub=[14.0])
+```
+
+```{julia}
+function objective_function(Δh::Vector{Float64})
+    a = Action(Δh[1])
+    npvs = [run_sim(a, sow, p) for sow in sows_opt]
+    return -mean(npvs)
+end
+```
+
+```{julia}
+result = optimize(objective_function, bounds)
+```
+
+```{julia}
+minimum(result)
+```
+
+```{julia}
+minimizer(result)
+```
+
+```{julia}
+N_SOW_opt = 100
+sows_opt = first(sows, N_SOW_opt)
+```
+
+```{julia}
+options = Options(; time_limit=180.0, f_tol_rel=10.0)
+```
+
+```{julia}
+algorithm = ECA(; options=options)
+```
+
+```{julia}
+Random.seed!(421521)
+result = optimize(objective_function, bounds, algorithm)
+```
+
+```{julia}
+display(minimum(result))
+display(minimizer(result))
+```
+
 
 ## Implementation
 
@@ -83,12 +209,51 @@ You should make your modifications in either the `HouseElevation` or `ParkingGar
 Detail the steps taken to implement the selected feature and integrate it into the decision-support tool.
 Include code snippets and explanations where necessary to clarify the implementation process.
 
+We included two additional elements in SOW
+struct SOW{T<:Real, E<:Real, S<:Real}
+    slr::Oddo17SLR # the parameters of sea-level rise
+    surge_dist::Distributions.UnivariateDistribution # the distribution of storm surge
+    discount_rate::T # the discount rate, as a percentage (e.g., 2% is 0.02)
+    grant::E # The grant amount as a percentage of what the government will pay for the elevation.
+    damages_grant::S # The grant amount as a percentage of what the government will pay for the damages.
+end
+
+In the run_sim function, construction_cost will now account for the potential grant
+function run_sim(a::Action, sow::SOW, p::ModelParams)
+    construction_cost = elevation_cost(p.house, a.Δh_ft, sow.grant)
+
+
 ## Validation
 
 As we have seen in labs, mistakes are inevitable and can lead to misleading results.
 To minimize the risk of errors making their way into final results, it is essential to validate the implemented feature.
 Describe the validation techniques used to ensure the accuracy and reliability of your implemented feature.
 Discuss any challenges faced during the validation process and how they were addressed.
+
+```{julia}
+#| output: false
+elevations_try = 0:0.5:14
+actions_try = Action.(elevations_try)
+
+N_more = 500
+npvs_opt = [mean([run_sim(a, sow, p) for sow in sows_opt]) for a in actions_try]
+npvs_moore = [
+    mean([run_sim(a, sow, p) for sow in first(sows, N_more)]) for a in actions_try
+]
+```
+
+```{julia}
+plot(
+    elevations_try,
+    npvs_opt ./ 1000;
+    xlabel="Elevation [ft]",
+    ylabel="NPV [1000 USD]",
+    label="First $(N_SOW_opt) SOWs",
+    marker=:circle,
+)
+plot!(elevations_try, npvs_moore ./ 1000; label="First $(N_more) SOWs", marker=:circle)
+vline!([minimizer(result)]; label="Optimal", linestyle=:dash)
+```
 
 # Results
 
